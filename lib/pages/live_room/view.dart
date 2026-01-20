@@ -115,8 +115,8 @@ class _LiveRoomPageState extends State<LiveRoomPage>
       }
       await _liveRoomController.playerInit(autoplay: shouldPlay);
     }
+    if (!mounted) return;
     plPlayerController.addStatusLister(playerListener);
-
     super.didPopNext();
   }
 
@@ -286,17 +286,10 @@ class _LiveRoomPageState extends State<LiveRoomPage>
               right: 0,
               child: TextButton(
                 onPressed: () {
-                  _liveRoomController.fsSC.value = SuperChatItem.fromJson({
-                    "id": Utils.random.nextInt(2147483647),
-                    "price": 66,
-                    "end_time":
-                        DateTime.now().millisecondsSinceEpoch ~/ 1000 + 5,
-                    "message": Utils.generateRandomString(55),
-                    "user_info": {
-                      "face": "",
-                      "uname": Utils.generateRandomString(8),
-                    },
-                  });
+                  final item = SuperChatItem.random;
+                  _liveRoomController
+                    ..fsSC.value = item
+                    ..addDm(item);
                 },
                 child: const Text('add superchat'),
               ),
@@ -332,6 +325,7 @@ class _LiveRoomPageState extends State<LiveRoomPage>
                         child: SuperChatCard(
                           item: item,
                           onRemove: () => _liveRoomController.fsSC.value = null,
+                          onReport: () => _liveRoomController.reportSC(item),
                         ),
                       ),
                       Positioned(
@@ -680,7 +674,7 @@ class _LiveRoomPageState extends State<LiveRoomPage>
         clampDouble(maxHeight / maxWidth * 1.08, 0.56, 0.7) * maxWidth;
     final rightWidth = min(400.0, maxWidth - videoWidth - padding.horizontal);
     videoWidth = maxWidth - rightWidth - padding.horizontal;
-    final videoHeight = maxHeight - padding.top;
+    final videoHeight = maxHeight - padding.top - kToolbarHeight;
     final width = isFullScreen ? maxWidth : videoWidth;
     final height = isFullScreen ? maxHeight - padding.top : videoHeight;
     return Padding(
@@ -907,30 +901,18 @@ class _LiveRoomPageState extends State<LiveRoomPage>
     if (_liveRoomController.showSuperChat) {
       return Stack(
         children: [
+          child,
           Positioned(
             left: 0,
             top: 0,
             right: 0,
-            child: Obx(() {
-              return ClipRect(
-                clipper: _BorderClipper(
-                  _liveRoomController.pageIndex.value == 0,
-                ),
-                child: const DecoratedBox(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(20),
-                    ),
-                    border: Border(
-                      top: BorderSide(color: Colors.white38),
-                    ),
-                  ),
-                  child: SizedBox(width: double.infinity, height: 20),
-                ),
-              );
-            }),
+            child: Obx(
+              () => _BorderIndicator(
+                radius: const Radius.circular(20),
+                isLeft: _liveRoomController.pageIndex.value == 0,
+              ),
+            ),
           ),
-          child,
         ],
       );
     }
@@ -963,25 +945,85 @@ class _LiveRoomPageState extends State<LiveRoomPage>
       });
 }
 
-class _BorderClipper extends CustomClipper<Rect> {
-  _BorderClipper(this.isLeft);
+class _BorderIndicator extends LeafRenderObjectWidget {
+  const _BorderIndicator({
+    required this.radius,
+    required this.isLeft,
+  });
 
+  final Radius radius;
   final bool isLeft;
 
   @override
-  Rect getClip(Size size) {
-    return Rect.fromLTWH(
-      isLeft ? 0 : size.width / 2,
-      0,
-      size.width / 2,
-      size.height,
+  RenderObject createRenderObject(BuildContext context) {
+    return RenderBorderIndicator(
+      radius: radius,
+      isLeft: isLeft,
     );
   }
 
   @override
-  bool shouldReclip(_BorderClipper oldClipper) {
-    return isLeft != oldClipper.isLeft;
+  void updateRenderObject(
+    BuildContext context,
+    RenderBorderIndicator renderObject,
+  ) {
+    renderObject
+      ..radius = radius
+      ..isLeft = isLeft;
   }
+}
+
+class RenderBorderIndicator extends RenderBox {
+  RenderBorderIndicator({
+    required Radius radius,
+    required bool isLeft,
+  }) : _radius = radius,
+       _isLeft = isLeft;
+
+  Radius _radius;
+  Radius get radius => _radius;
+  set radius(Radius value) {
+    if (_radius == value) return;
+    _radius = value;
+    markNeedsLayout();
+  }
+
+  bool _isLeft;
+  bool get isLeft => _isLeft;
+  set isLeft(bool value) {
+    if (_isLeft == value) return;
+    _isLeft = value;
+    markNeedsPaint();
+  }
+
+  @override
+  void performLayout() {
+    size = constraints.constrain(Size(constraints.maxWidth, _radius.x));
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    final size = this.size;
+    final canvas = context.canvas;
+    final width = size.width / 2;
+    if (!_isLeft) {
+      canvas.translate(width, 0);
+    }
+    BoxBorder.paintNonUniformBorder(
+      canvas,
+      Rect.fromLTWH(0, 0, width, size.height),
+      borderRadius: BorderRadius.only(
+        topLeft: _isLeft ? _radius : .zero,
+        topRight: _isLeft ? .zero : _radius,
+      ),
+      textDirection: null,
+      top: const BorderSide(),
+      color: Colors.white38,
+    );
+  }
+
+  @override
+  bool get isRepaintBoundary => true;
 }
 
 class LiveDanmaku extends StatefulWidget {
@@ -1023,22 +1065,20 @@ class _LiveDanmakuState extends State<LiveDanmaku> {
   @override
   Widget build(BuildContext context) {
     return Obx(
-      () {
-        return AnimatedOpacity(
-          opacity: plPlayerController.enableShowDanmaku.value
-              ? plPlayerController.danmakuOpacity.value
-              : 0,
-          duration: const Duration(milliseconds: 100),
-          child: DanmakuScreen<DanmakuExtra>(
-            createdController: (e) {
-              widget.liveRoomController.danmakuController =
-                  plPlayerController.danmakuController = e;
-            },
-            option: DanmakuOptions.get(notFullscreen: widget.notFullscreen),
-            size: widget.size,
-          ),
-        );
-      },
+      () => AnimatedOpacity(
+        opacity: plPlayerController.enableShowDanmaku.value
+            ? plPlayerController.danmakuOpacity.value
+            : 0,
+        duration: const Duration(milliseconds: 100),
+        child: DanmakuScreen<DanmakuExtra>(
+          createdController: (e) {
+            widget.liveRoomController.danmakuController =
+                plPlayerController.danmakuController = e;
+          },
+          option: DanmakuOptions.get(notFullscreen: widget.notFullscreen),
+          size: widget.size,
+        ),
+      ),
     );
   }
 }

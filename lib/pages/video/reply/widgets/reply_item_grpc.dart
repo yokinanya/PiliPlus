@@ -4,6 +4,7 @@ import 'package:PiliPlus/common/constants.dart';
 import 'package:PiliPlus/common/widgets/badge.dart';
 import 'package:PiliPlus/common/widgets/dialog/report.dart';
 import 'package:PiliPlus/common/widgets/flutter/text/text.dart' as custom_text;
+import 'package:PiliPlus/common/widgets/gesture/immediate_tap_gesture_recognizer.dart';
 import 'package:PiliPlus/common/widgets/image/custom_grid_view.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
 import 'package:PiliPlus/common/widgets/pendant_avatar.dart';
@@ -33,7 +34,6 @@ import 'package:PiliPlus/utils/utils.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
@@ -99,14 +99,8 @@ class ReplyItemGrpc extends StatelessWidget {
     return Material(
       type: MaterialType.transparency,
       child: InkWell(
-        onTap: () {
-          feedBack();
-          replyReply?.call(replyItem, null);
-        },
-        onLongPress: () {
-          feedBack();
-          showMore();
-        },
+        onTap: () => replyReply?.call(replyItem, null),
+        onLongPress: showMore,
         onSecondaryTap: isMobile ? null : showMore,
         child: _buildContent(context, theme),
       ),
@@ -468,10 +462,7 @@ class ReplyItemGrpc extends StatelessWidget {
                 return InkWell(
                   onTap: () =>
                       replyReply?.call(replyItem, childReply.id.toInt()),
-                  onLongPress: () {
-                    feedBack();
-                    showMore();
-                  },
+                  onLongPress: showMore,
                   onSecondaryTap: PlatformUtils.isMobile ? null : showMore,
                   child: Padding(
                     padding: padding,
@@ -492,7 +483,7 @@ class ReplyItemGrpc extends StatelessWidget {
                             style: TextStyle(
                               color: theme.colorScheme.primary,
                             ),
-                            recognizer: TapGestureRecognizer()
+                            recognizer: ImmediateTapGestureRecognizer()
                               ..onTap = () {
                                 feedBack();
                                 Get.toNamed(
@@ -625,7 +616,7 @@ class ReplyItemGrpc extends StatelessWidget {
           style: TextStyle(
             color: theme.colorScheme.primary,
           ),
-          recognizer: TapGestureRecognizer()
+          recognizer: ImmediateTapGestureRecognizer()
             ..onTap = () {
               if (url.appUrlSchema.isEmpty) {
                 if (RegExp(
@@ -704,7 +695,7 @@ class ReplyItemGrpc extends StatelessWidget {
             TextSpan(
               text: matchStr,
               style: TextStyle(color: theme.colorScheme.primary),
-              recognizer: TapGestureRecognizer()
+              recognizer: ImmediateTapGestureRecognizer()
                 ..onTap = () =>
                     Get.toNamed('/member?mid=${content.atNameToMid[name]}'),
             ),
@@ -714,7 +705,7 @@ class ReplyItemGrpc extends StatelessWidget {
             TextSpan(
               text: '投票: ${content.vote.title}',
               style: TextStyle(color: theme.colorScheme.primary),
-              recognizer: TapGestureRecognizer()
+              recognizer: ImmediateTapGestureRecognizer()
                 ..onTap = () =>
                     showVoteDialog(context, content.vote.id.toInt()),
             ),
@@ -739,7 +730,7 @@ class ReplyItemGrpc extends StatelessWidget {
                   ? TextStyle(color: theme.colorScheme.primary)
                   : null,
               recognizer: isValid
-                  ? (TapGestureRecognizer()
+                  ? (ImmediateTapGestureRecognizer()
                       ..onTap = () {
                         // 跳转到指定位置
                         try {
@@ -770,7 +761,7 @@ class ReplyItemGrpc extends StatelessWidget {
               TextSpan(
                 text: matchStr,
                 style: TextStyle(color: theme.colorScheme.primary),
-                recognizer: TapGestureRecognizer()
+                recognizer: ImmediateTapGestureRecognizer()
                   ..onTap = () {
                     Get.toNamed(
                       '/searchResult',
@@ -784,7 +775,7 @@ class ReplyItemGrpc extends StatelessWidget {
               TextSpan(
                 text: matchStr,
                 style: TextStyle(color: theme.colorScheme.primary),
-                recognizer: TapGestureRecognizer()
+                recognizer: ImmediateTapGestureRecognizer()
                   ..onTap = () => PageUtils.handleWebview(matchStr),
               ),
             );
@@ -825,7 +816,7 @@ class ReplyItemGrpc extends StatelessWidget {
                 : theme.colorScheme.secondary,
           ),
           recognizer: hasClickUrl
-              ? (TapGestureRecognizer()
+              ? (ImmediateTapGestureRecognizer()
                   ..onTap = () =>
                       PageUtils.handleWebview(content.richText.note.clickUrl))
               : null,

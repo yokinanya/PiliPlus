@@ -99,7 +99,7 @@ abstract final class Utils {
   static Future<Rect?> get sharePositionOrigin async {
     if (await isIpad) {
       final size = Get.size;
-      return Rect.fromLTWH(0, 0, size.width, size.height / 2);
+      return Rect.fromLTRB(0, 0, size.width, size.height / 2);
     }
     return null;
   }
@@ -145,7 +145,7 @@ abstract final class Utils {
     return Clipboard.setData(ClipboardData(text: text));
   }
 
-  static String makeHeroTag(v) {
+  static String makeHeroTag(dynamic v) {
     return v.toString() + random.nextInt(9999).toString();
   }
 

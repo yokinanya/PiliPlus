@@ -58,6 +58,7 @@ abstract final class SettingBoxKey {
       defaultShowComment = 'defaultShowComment',
       replySortType = 'replySortType',
       defaultDynamicType = 'defaultDynamicType',
+      showDynInteraction = 'showDynInteraction',
       enableHotKey = 'enableHotKey',
       enableSearchRcmd = 'enableSearchRcmd',
       enableQuickFav = 'enableQuickFav',
@@ -144,7 +145,9 @@ abstract final class SettingBoxKey {
       enableTapDm = 'enableTapDm',
       setSystemBrightness = 'setSystemBrightness',
       downloadPath = 'downloadPath',
-      followOrderType = 'followOrderType';
+      followOrderType = 'followOrderType',
+      enableImgMenu = 'enableImgMenu',
+      showDynDispute = 'showDynDispute';
 
   static const String minimizeOnExit = 'minimizeOnExit',
       windowSize = 'windowSize',
@@ -152,7 +155,8 @@ abstract final class SettingBoxKey {
       isWindowMaximized = 'isWindowMaximized',
       showWindowTitleBar = 'showWindowTitleBar',
       desktopVolume = 'desktopVolume',
-      showTrayIcon = 'showTrayIcon';
+      showTrayIcon = 'showTrayIcon',
+      uiScale = 'uiScale';
 
   static const String subtitlePreferenceV2 = 'subtitlePreferenceV2',
       enableDragSubtitle = 'enableDragSubtitle',
