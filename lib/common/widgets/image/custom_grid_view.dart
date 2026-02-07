@@ -60,14 +60,13 @@ class ImageModel {
   bool? _isLongPic;
   bool? _isLivePhoto;
 
-  bool get isLongPic => _isLongPic ??= (height / width) > _maxRatio;
+  bool get isLongPic =>
+      _isLongPic ??= (height / width) > StyleString.imgMaxRatio;
   bool get isLivePhoto =>
       _isLivePhoto ??= enableLivePhoto && liveUrl?.isNotEmpty == true;
 
   static bool enableLivePhoto = Pref.enableLivePhoto;
 }
-
-const double _maxRatio = 22 / 9;
 
 class CustomGridView extends StatelessWidget {
   const CustomGridView({
@@ -122,7 +121,7 @@ class CustomGridView extends StatelessWidget {
     );
   }
 
-  static BorderRadius borderRadius(
+  static BorderRadius _borderRadius(
     int col,
     int length,
     int index, {
@@ -222,7 +221,7 @@ class CustomGridView extends StatelessWidget {
         if (width != 1) {
           imageWidth = min(imageWidth, width.toDouble());
         }
-        imageHeight = imageWidth * min(ratioHW, _maxRatio);
+        imageHeight = imageWidth * min(ratioHW, StyleString.imgMaxRatio);
       }
     }
 
@@ -251,13 +250,12 @@ class CustomGridView extends StatelessWidget {
         height: imageHeight * row + space * (row - 1),
         child: ImageGrid(
           space: space,
-          itemCount: length,
           column: column,
           width: imageWidth,
           height: imageHeight,
           children: List.generate(length, (index) {
             final item = picArr[index];
-            final radius = borderRadius(column, length, index);
+            final borderRadius = _borderRadius(column, length, index);
             return LayoutId(
               id: index,
               child: GestureDetector(
@@ -276,17 +274,14 @@ class CustomGridView extends StatelessWidget {
                     clipBehavior: Clip.none,
                     alignment: Alignment.center,
                     children: [
-                      ClipRRect(
-                        borderRadius: radius,
-                        child: NetworkImgLayer(
-                          type: .emote,
-                          src: item.url,
-                          width: imageWidth,
-                          height: imageHeight,
-                          alignment: item.isLongPic ? .topCenter : .center,
-                          cacheWidth: item.width <= item.height,
-                          getPlaceHolder: () => placeHolder,
-                        ),
+                      NetworkImgLayer(
+                        src: item.url,
+                        width: imageWidth,
+                        height: imageHeight,
+                        borderRadius: borderRadius,
+                        alignment: item.isLongPic ? .topCenter : .center,
+                        cacheWidth: item.width <= item.height,
+                        getPlaceHolder: () => placeHolder,
                       ),
                       if (item.isLivePhoto)
                         const PBadge(
@@ -318,14 +313,12 @@ class ImageGrid extends MultiChildRenderObjectWidget {
     super.key,
     super.children,
     required this.space,
-    required this.itemCount,
     required this.column,
     required this.width,
     required this.height,
   });
 
   final double space;
-  final int itemCount;
   final int column;
   final double width;
   final double height;
@@ -334,7 +327,6 @@ class ImageGrid extends MultiChildRenderObjectWidget {
   RenderObject createRenderObject(BuildContext context) {
     return RenderImageGrid(
       space: space,
-      itemCount: itemCount,
       column: column,
       width: width,
       height: height,
@@ -345,7 +337,6 @@ class ImageGrid extends MultiChildRenderObjectWidget {
   void updateRenderObject(BuildContext context, RenderImageGrid renderObject) {
     renderObject
       ..space = space
-      ..itemCount = itemCount
       ..column = column
       ..width = width
       ..height = height;
@@ -358,12 +349,10 @@ class RenderImageGrid extends RenderBox
         RenderBoxContainerDefaultsMixin<RenderBox, MultiChildLayoutParentData> {
   RenderImageGrid({
     required double space,
-    required int itemCount,
     required int column,
     required double width,
     required double height,
   }) : _space = space,
-       _itemCount = itemCount,
        _column = column,
        _width = width,
        _height = height;
@@ -373,23 +362,15 @@ class RenderImageGrid extends RenderBox
   set space(double value) {
     if (_space == value) return;
     _space = value;
-    markNeedsPaint();
-  }
-
-  int _itemCount;
-  int get itemCount => _itemCount;
-  set itemCount(int value) {
-    if (_itemCount == value) return;
-    _itemCount = value;
-    markNeedsPaint();
+    markNeedsLayout();
   }
 
   int _column;
   int get column => _column;
   set column(int value) {
-    if (_space == value) return;
+    if (_column == value) return;
     _column = value;
-    markNeedsPaint();
+    markNeedsLayout();
   }
 
   double _width;
@@ -397,7 +378,7 @@ class RenderImageGrid extends RenderBox
   set width(double value) {
     if (_width == value) return;
     _width = value;
-    markNeedsPaint();
+    markNeedsLayout();
   }
 
   double _height;
@@ -405,7 +386,7 @@ class RenderImageGrid extends RenderBox
   set height(double value) {
     if (_height == value) return;
     _height = value;
-    markNeedsPaint();
+    markNeedsLayout();
   }
 
   @override

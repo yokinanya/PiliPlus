@@ -1,5 +1,5 @@
 import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
-import 'package:PiliPlus/common/widgets/gesture/immediate_tap_gesture_recognizer.dart';
+import 'package:PiliPlus/common/widgets/gesture/tap_gesture_recognizer.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
 import 'package:PiliPlus/http/live.dart';
 import 'package:PiliPlus/models/common/image_type.dart';
@@ -49,7 +49,7 @@ class LiveRoomChatPanel extends StatelessWidget {
       children: [
         Obx(
           () => ListView.separated(
-            key: const PageStorageKey('live-chat'),
+            key: const PageStorageKey(LiveRoomChatPanel),
             padding: const EdgeInsets.symmetric(horizontal: 12),
             controller: liveRoomController.scrollController,
             separatorBuilder: (_, _) => const SizedBox(height: 8),
@@ -84,7 +84,7 @@ class LiveRoomChatPanel extends StatelessWidget {
                                 ),
                                 recognizer: item.uid == 0
                                     ? null
-                                    : (ImmediateTapGestureRecognizer()
+                                    : (NoDeadlineTapGestureRecognizer()
                                         ..onTapUp = (e) => _showMsgMenu(
                                           context,
                                           itemContext,
@@ -99,7 +99,7 @@ class LiveRoomChatPanel extends StatelessWidget {
                                     color: primary,
                                     fontSize: 14,
                                   ),
-                                  recognizer: ImmediateTapGestureRecognizer()
+                                  recognizer: NoDeadlineTapGestureRecognizer()
                                     ..onTap = () =>
                                         Get.toNamed('/member?mid=${reply.mid}'),
                                 ),

@@ -1,6 +1,6 @@
 import 'package:PiliPlus/common/constants.dart';
 import 'package:PiliPlus/common/widgets/flutter/dyn/ink_well.dart';
-import 'package:PiliPlus/common/widgets/gesture/immediate_tap_gesture_recognizer.dart';
+import 'package:PiliPlus/common/widgets/gesture/tap_gesture_recognizer.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
 import 'package:PiliPlus/http/dynamics.dart';
 import 'package:PiliPlus/http/loading_state.dart';
@@ -125,7 +125,7 @@ Widget addWidget(
                                   ),
                                   recognizer: reserve.desc3!.jumpUrl == null
                                       ? null
-                                      : (ImmediateTapGestureRecognizer()
+                                      : (NoDeadlineTapGestureRecognizer()
                                           ..onTap = () {
                                             Get.toNamed(
                                               '/webview',
@@ -261,7 +261,7 @@ Widget addWidget(
                                 ),
                                 recognizer: content.desc!.jumpUrl == null
                                     ? null
-                                    : (ImmediateTapGestureRecognizer()
+                                    : (NoDeadlineTapGestureRecognizer()
                                         ..onTap = () {
                                           Get.toNamed(
                                             '/webview',

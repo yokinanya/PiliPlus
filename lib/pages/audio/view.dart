@@ -3,7 +3,7 @@ import 'dart:math' show min;
 import 'package:PiliPlus/common/constants.dart';
 import 'package:PiliPlus/common/widgets/button/icon_button.dart';
 import 'package:PiliPlus/common/widgets/flutter/refresh_indicator.dart';
-import 'package:PiliPlus/common/widgets/gesture/immediate_tap_gesture_recognizer.dart';
+import 'package:PiliPlus/common/widgets/gesture/tap_gesture_recognizer.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
 import 'package:PiliPlus/common/widgets/progress_bar/audio_video_progress_bar.dart';
 import 'package:PiliPlus/grpc/bilibili/app/listener/v1.pb.dart';
@@ -862,6 +862,7 @@ class _AudioPageState extends State<AudioPage> {
                             src: cover,
                             width: 170,
                             height: 170,
+                            cacheWidth: false,
                           ),
                         ),
                       ),
@@ -919,7 +920,7 @@ class _AudioPageState extends State<AudioPage> {
                               TextSpan(
                                 text: audioItem.arc.displayedOid,
                                 style: TextStyle(color: colorScheme.secondary),
-                                recognizer: ImmediateTapGestureRecognizer()
+                                recognizer: NoDeadlineTapGestureRecognizer()
                                   ..onTap = () => Utils.copyText(
                                     audioItem.arc.displayedOid,
                                   ),

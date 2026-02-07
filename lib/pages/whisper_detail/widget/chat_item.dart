@@ -3,7 +3,7 @@ import 'dart:math';
 
 import 'package:PiliPlus/common/constants.dart';
 import 'package:PiliPlus/common/widgets/badge.dart';
-import 'package:PiliPlus/common/widgets/gesture/immediate_tap_gesture_recognizer.dart';
+import 'package:PiliPlus/common/widgets/gesture/tap_gesture_recognizer.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
 import 'package:PiliPlus/grpc/bilibili/im/interfaces/v1.pb.dart'
     show EmotionInfo;
@@ -435,7 +435,8 @@ class ChatItem extends StatelessWidget {
                       NetworkImgLayer(
                         type: ImageType.emote,
                         width: constrains.maxWidth,
-                        height: constrains.maxWidth * 9 / 16,
+                        height:
+                            constrains.maxWidth / StyleString.aspectRatio16x9,
                         src: content['cover'],
                       ),
                       PBadge(
@@ -662,7 +663,7 @@ class ChatItem extends StatelessWidget {
             TextSpan(
               text: matchStr,
               style: style.copyWith(color: theme.colorScheme.primary),
-              recognizer: ImmediateTapGestureRecognizer()
+              recognizer: NoDeadlineTapGestureRecognizer()
                 ..onTap = () => PiliScheme.routePushFromUrl(matchStr),
             ),
           );

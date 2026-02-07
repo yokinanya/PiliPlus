@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-import 'package:PiliPlus/common/widgets/gesture/immediate_tap_gesture_recognizer.dart';
+import 'package:PiliPlus/common/widgets/gesture/tap_gesture_recognizer.dart';
 import 'package:PiliPlus/common/widgets/image/cached_network_svg_image.dart';
 import 'package:PiliPlus/common/widgets/image/custom_grid_view.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
@@ -69,7 +69,7 @@ class OpusContent extends StatelessWidget {
                     ? null
                     : colorScheme.primary,
               ),
-              recognizer: ImmediateTapGestureRecognizer()
+              recognizer: NoDeadlineTapGestureRecognizer()
                 ..onTap = () {
                   switch (rich.type) {
                     case 'RICH_TEXT_NODE_TYPE_AT':
@@ -293,7 +293,7 @@ class OpusContent extends StatelessWidget {
                             return TextSpan(
                               text: '${hasUrl ? '\u{1F517}' : ''}$text',
                               recognizer: hasUrl
-                                  ? (ImmediateTapGestureRecognizer()
+                                  ? (NoDeadlineTapGestureRecognizer()
                                       ..onTap = () =>
                                           PiliScheme.routePushFromUrl(jumpUrl))
                                   : null,
