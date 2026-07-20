@@ -7,6 +7,7 @@ import 'package:PiliPlus/common/widgets/badge.dart';
 import 'package:PiliPlus/common/widgets/gesture/tap_gesture_recognizer.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
 import 'package:PiliPlus/common/widgets/image_viewer/hero.dart';
+import 'package:PiliPlus/common/widgets/selection_text.dart';
 import 'package:PiliPlus/grpc/bilibili/im/interfaces/v1.pb.dart'
     show EmotionInfo;
 import 'package:PiliPlus/grpc/bilibili/im/type.pb.dart' show Msg, MsgType;
@@ -21,7 +22,7 @@ import 'package:PiliPlus/utils/extension/num_ext.dart';
 import 'package:PiliPlus/utils/id_utils.dart';
 import 'package:PiliPlus/utils/image_utils.dart';
 import 'package:PiliPlus/utils/page_utils.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cached_network_image_ce/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
@@ -200,44 +201,45 @@ class ChatItem extends StatelessWidget {
 
   Widget msgTypeCommonShareCard_14(dynamic content, Color textColor) {
     if (content['source'] == '直播') {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          GestureDetector(
-            onTap: () {
-              dynamic roomId = content['sourceID'];
-              if (roomId is String) {
-                roomId = int.parse(roomId);
-              }
-              PageUtils.toLiveRoom(roomId);
-            },
-            child: NetworkImgLayer(
+      return GestureDetector(
+        behavior: .opaque,
+        onTap: () {
+          dynamic roomId = content['sourceID'];
+          if (roomId is String) {
+            roomId = int.parse(roomId);
+          }
+          PageUtils.toLiveRoom(roomId);
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            NetworkImgLayer(
               width: 220,
               height: 123.75,
               src: content['cover'],
             ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            content['title'] ?? "",
-            style: TextStyle(
-              letterSpacing: 0.6,
-              height: 1.5,
-              color: textColor,
-              fontWeight: FontWeight.bold,
+            const SizedBox(height: 6),
+            Text(
+              content['title'] ?? "",
+              style: TextStyle(
+                letterSpacing: 0.6,
+                height: 1.5,
+                color: textColor,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-          const SizedBox(height: 1),
-          Text(
-            '${content['author']} · 直播',
-            style: TextStyle(
-              letterSpacing: 0.6,
-              height: 1.5,
-              color: textColor.withValues(alpha: 0.6),
-              fontSize: 12,
+            const SizedBox(height: 1),
+            Text(
+              '${content['author']} · 直播',
+              style: TextStyle(
+                letterSpacing: 0.6,
+                height: 1.5,
+                color: textColor.withValues(alpha: 0.6),
+                fontSize: 12,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       );
     } else {
       return def(textColor);
@@ -246,6 +248,7 @@ class ChatItem extends StatelessWidget {
 
   Widget msgTypeArticleCard_12(dynamic content, Color textColor) {
     return GestureDetector(
+      behavior: .opaque,
       onTap: () => Get.toNamed(
         '/articlePage',
         parameters: {
@@ -267,7 +270,7 @@ class ChatItem extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 6),
-          SelectableText(
+          Text(
             content['title'] ?? "",
             style: TextStyle(
               letterSpacing: 0.6,
@@ -278,8 +281,7 @@ class ChatItem extends StatelessWidget {
           ),
           if (content['summary'] != null && content['summary'] != '') ...[
             const SizedBox(height: 1),
-            SelectableText(
-              scrollPhysics: const NeverScrollableScrollPhysics(),
+            Text(
               content['summary'],
               style: TextStyle(
                 letterSpacing: 0.6,
@@ -570,32 +572,20 @@ class ChatItem extends StatelessWidget {
           'unsupported source type: ${content['source']}',
         );
     }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        GestureDetector(
-          onTap: onTap,
-          child: NetworkImgLayer(
+    return GestureDetector(
+      onTap: onTap,
+      behavior: .opaque,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          NetworkImgLayer(
             width: 220,
             height: 123.75,
             src: content['thumb'],
           ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          content['title'] ?? "",
-          style: TextStyle(
-            letterSpacing: 0.6,
-            height: 1.5,
-            color: textColor,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        if (content['source'] == 6 &&
-            (content['headline'] as String?)?.isNotEmpty == true) ...[
-          const SizedBox(height: 1),
+          const SizedBox(height: 6),
           Text(
-            content['headline'],
+            content['title'] ?? "",
             style: TextStyle(
               letterSpacing: 0.6,
               height: 1.5,
@@ -603,20 +593,33 @@ class ChatItem extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-        ],
-        if (content['author'] != null) ...[
-          const SizedBox(height: 1),
-          Text(
-            '${content['author']}${type != null ? ' · $type' : ''}',
-            style: TextStyle(
-              letterSpacing: 0.6,
-              height: 1.5,
-              color: textColor.withValues(alpha: 0.6),
-              fontSize: 12,
+          if (content['source'] == 6 &&
+              (content['headline'] as String?)?.isNotEmpty == true) ...[
+            const SizedBox(height: 1),
+            Text(
+              content['headline'],
+              style: TextStyle(
+                letterSpacing: 0.6,
+                height: 1.5,
+                color: textColor,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
+          ],
+          if (content['author'] != null) ...[
+            const SizedBox(height: 1),
+            Text(
+              '${content['author']}${type != null ? ' · $type' : ''}',
+              style: TextStyle(
+                letterSpacing: 0.6,
+                height: 1.5,
+                color: textColor.withValues(alpha: 0.6),
+                fontSize: 12,
+              ),
+            ),
+          ],
         ],
-      ],
+      ),
     );
   }
 
@@ -715,7 +718,7 @@ class ChatItem extends StatelessWidget {
         return '';
       },
     );
-    return SelectableText.rich(TextSpan(children: children));
+    return SelectionText.rich(TextSpan(children: children));
   }
 
   Widget msgTypeNotifyMsg_10(ThemeData theme, content) {
@@ -749,7 +752,7 @@ class ChatItem extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            SelectableText(
+            Text(
               content['title'],
               style: theme.textTheme.titleMedium!.copyWith(
                 fontWeight: FontWeight.bold,
@@ -757,7 +760,7 @@ class ChatItem extends StatelessWidget {
             ),
             Divider(color: theme.colorScheme.primary.withValues(alpha: 0.05)),
             if ((content['text'] as String?)?.isNotEmpty == true)
-              SelectableText(content['text']),
+              SelectionText(content['text']),
             if (modules != null && modules.isNotEmpty) ...[
               const SizedBox(height: 4),
               ...modules.map(

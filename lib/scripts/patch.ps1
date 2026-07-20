@@ -12,6 +12,10 @@ $BottomSheetAndroidPatch = "lib/scripts/bottom_sheet_android.patch"
 $BottomSheetIOSFlutterPatch = "lib/scripts/bottom_sheet_ios_flutter.patch"
 $BottomSheetIOSPiliPlusPatch = "lib/scripts/bottom_sheet_ios_piliplus.patch"
 
+# TODO: remove
+# https://github.com/flutter/flutter/issues/185052
+$TextSelectionMenuFix = "beb2ad17004a1b118ff2bd09f55cee23198f6652";
+
 # https://github.com/bggRGjQaUbCoE/PiliPlus/issues/1662
 $ScrollViewPatch = "lib/scripts/scroll_view.patch"
 
@@ -26,6 +30,23 @@ $ImageAnimPatch = "lib/scripts/image_anim.patch"
 
 $LayoutBuilderPatch = "lib/scripts/layout_builder.patch"
 
+# https://github.com/bggRGjQaUbCoE/PiliPlus/issues/2308
+$NavigationDrawerPatch = "lib/scripts/navigation_drawer.patch"
+
+$PopupMenuPatch = "lib/scripts/popup_menu.patch"
+
+$FABPatch = "lib/scripts/fab.patch"
+
+$SelectableRegionSelectionPatch = "lib/scripts/selectable_region.patch"
+
+$EditableTextPatch = "lib/scripts/editable_text.patch"
+
+$TextFieldPatch = "lib/scripts/text_field.patch"
+
+# TODO: remove
+# https://github.com/flutter/flutter/pull/183261
+$SelectableRegionPatch = "lib/scripts/null_safety_for_selectable_region.patch"
+
 # TODO: remove
 # https://github.com/flutter/flutter/issues/90223
 $ModalBarrierPatch = "lib/scripts/modal_barrier.patch"
@@ -34,19 +55,27 @@ $ModalBarrierPatch = "lib/scripts/modal_barrier.patch"
 # https://github.com/flutter/flutter/issues/182466
 $MouseCursorPatch = "lib/scripts/mouse_cursor.patch"
 
+$GeetestIOSPatch = "lib/scripts/geetest_ios.patch"
+
 if ($platform.ToLower() -eq "ios") {
     git apply $BottomSheetIOSPiliPlusPatch
     if ($LASTEXITCODE -eq 0) {
         Write-Host "$BottomSheetIOSPiliPlusPatch applied"
     }
+    git apply $GeetestIOSPatch
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "$GeetestIOSPatch applied"
+    }
 }
 
 Set-Location $env:FLUTTER_ROOT
 
-$picks   = @()
+$picks   = @($TextSelectionMenuFix)
 $reverts = @()
 $patches = @($ModalBarrierPatch, $TextSelectionPatch, $MouseCursorPatch,
-            $ImageAnimPatch, $LayoutBuilderPatch)
+            $ImageAnimPatch, $LayoutBuilderPatch, $NavigationDrawerPatch,
+            $PopupMenuPatch, $FABPatch, $SelectableRegionPatch, $SelectableRegionSelectionPatch,
+            $EditableTextPatch, $TextFieldPatch)
 
 switch ($platform.ToLower()) {
     "android" {
