@@ -20,7 +20,7 @@ abstract final class HkApi {
 
   static bool canFallback(RequestOptions options) {
     return isConfigured &&
-        options.method == 'GET' &&
+        (options.method == 'GET' || options.method == 'POST') &&
         options.extra[_allowFallbackKey] == true &&
         options.extra[_hasRetriedKey] != true &&
         options.baseUrl != baseUrl;
