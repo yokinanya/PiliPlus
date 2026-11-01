@@ -108,6 +108,9 @@ jobs:
 
           printf "生成 spec 文件...\n"
           cat > "$RPM_BUILD_ROOT/SPECS/piliplus.spec" <<EOF
+          # 预编译的 Flutter 产物，不生成 debuginfo 包（runner 上也没有 eu-strip）
+          %global debug_package %{nil}
+
           Name:           piliplus
           Version:        ${{ env.package_version }}
           Release:        1%{?dist}
